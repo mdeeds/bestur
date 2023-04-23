@@ -50,8 +50,11 @@ void GameState::AddMoveAlongStates(std::vector<GameState>* children) const {
       PlayerState* next_other_player_state = player_turn_ == 1 ? 
            &next_state.player_2_ : &next_state.player_1_;
 
-      if (next_other_player_state)
-
+      if (kOtherPlayerTrack[landing_position] >= 0 &&
+        next_other_player_state->track_[kOtherPlayerTrack[landing_position]] > 0) {
+          next_other_player_state->track_[kOtherPlayerTrack[landing_position]] = 0;
+          next_other_player_state->pieces_at_start_++;
+      }
 
       next_current_player_state->track_[i] = 0;
       next_current_player_state->track_[landing_position] = 1;
