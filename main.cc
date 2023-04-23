@@ -14,15 +14,15 @@ double prob_alpha_beta(const GameState& state, int remaining_depth,
     return state.GetHeuristicValue();
   }
 
-  if (state.need_to_toss) {
+  if (state.need_to_toss_) {
     // We need to combine all possibilities.
     double value = 0.0;
     for (const GameState& child : next_moves) {
-      value += child.probability *
+      value += child.probability_ *
         prob_alpha_beta(child, remaining_depth - 1, alpha, beta);
     }
     return value;
-  } else if (state.player_turn == 1) {
+  } else if (state.player_turn_ == 1) {
     // If it is the maximizing player's turn,
     // find the maximum possible value of the game state
     double best_value = 0.0;
@@ -56,7 +56,7 @@ int main() {
 
   // Print the minimax value of the game state
   std::cout << "Alpha-Beta value: " << prob_alpha_beta(
-    state, /*remaining_depth=*/20, 
+    state, /*remaining_depth=*/12, 
     /*initial_alpha=*/0, /*initial_beta=*/100) << std::endl;
 
   return 0;
