@@ -7,14 +7,6 @@
 // Length of track (in squares)
 constexpr int kTrackLength = 16;
 
-// The game of Ur
-//
-// [12]->*11*-> End2 Start2 [  ]->[  ]->[  ]->[  ]  
-//  v    ^                                v
-// [13]<-[10]<- [ 9]<-[ 8]<-* 7*<-[ 6]<-[ 5]<-[ 4]
-//  ^    v                                ^
-// [14]->*15*-> End1 Start1 [ 0]->[ 1]->[ 2]->* 3*
-
 class PlayerState {
  public:
   PlayerState() : track_(kTrackLength) {}

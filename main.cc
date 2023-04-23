@@ -56,7 +56,7 @@ int main() {
 
   // Print the minimax value of the game state
   std::cout << "Alpha-Beta value: " << prob_alpha_beta(
-    state, /*remaining_depth=*/12, 
+    state, /*remaining_depth=*/16, 
     /*initial_alpha=*/0, /*initial_beta=*/100) << std::endl;
 
   return 0;

@@ -5,6 +5,18 @@
 static const std::vector<double> kProbabilities({0.125, 0.375, 0.375, 0.125});
 static const std::vector<int> kSpaces({4, 1, 2, 3});
 
+// The game of Ur
+//
+// [12]->*11*-> End2 Start2 [  ]->[  ]->[  ]->[  ]  
+//  v    ^                                v
+// [13]<-[10]<- [ 9]<-[ 8]<-* 7*<-[ 6]<-[ 5]<-[ 4]
+//  ^    v                                ^
+// [14]->*15*-> End1 Start1 [ 0]->[ 1]->[ 2]->* 3*
+
+// corresponding index on the other player's track.
+static const std::vector<int> kOtherPlayerTrack(
+  {-1, -1, -1, -1, 4, 5, 6, 7, 8, 9, 10, 15, 14, 13, 12, 11});
+
 void GameState::AddMoveOutStates(std::vector<GameState>* children) const {
   const PlayerState* current_player = player_turn_ == 1 ? &player_1_ : &player_2_;
 
@@ -28,16 +40,28 @@ void GameState::AddMoveOutStates(std::vector<GameState>* children) const {
 void GameState::AddMoveAlongStates(std::vector<GameState>* children) const {
   const PlayerState* current_player = player_turn_ == 1 ? &player_1_ : &player_2_;
   for (size_t i = 0; i < current_player->track_.size(); ++i) {
+    size_t landing_position = i + spaces_to_move_;
     if (current_player->track_[i] > 0 &&
-        i + spaces_to_move_ < current_player->track_.size() &&
-        current_player->track_[i + spaces_to_move_] == 0) {
+        landing_position < current_player->track_.size() &&
+        current_player->track_[landing_position] == 0) {
       GameState next_state(*this);
       PlayerState* next_current_player_state = player_turn_ == 1 ? 
            &next_state.player_1_ : &next_state.player_2_;
+      PlayerState* next_other_player_state = player_turn_ == 1 ? 
+           &next_state.player_2_ : &next_state.player_1_;
+
+      if (next_other_player_state)
+
 
       next_current_player_state->track_[i] = 0;
-      next_current_player_state->track_[i + spaces_to_move_] = 1;
-      next_state.EndTurn();
+      next_current_player_state->track_[landing_position] = 1;
+      // Landing on a star gives the player another turn.
+      if (landing_position % 4 == 3) {
+        next_state.need_to_toss_ = true;
+      } else {
+        next_state.EndTurn();
+      }
+
       children->push_back(std::move(next_state));
     }
   }
@@ -84,7 +108,12 @@ GameState::GetNextMoves() const {
     AddMoveAlongStates(&result);
     AddMoveHomeStates(&result);
 
-    // TODO: If there are no legal moves, just return an EndTurn state.
+    // If there are no legal moves, just return an EndTurn state.
+    if (result.empty()) {
+      GameState next(*this);
+      next.EndTurn();
+      result.push_back(next);
+    }
 
     std::sort(result.begin(), result.end(),
       [](const GameState& a, const GameState& b){ 
